@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/m3db/m3db/src/coordinator/models"
@@ -55,4 +56,36 @@ type Step interface {
 type BlockMetadata struct {
 	Bounds Bounds
 	Tags   models.Tags // Common tags across different series
+}
+
+type ColumnBlockBuilder struct {
+	block ColumnBlock
+}
+
+type ColumnBlock struct {
+	columns [] Column
+}
+
+func (c ColumnBlock)
+
+func NewColumnBlockBuilder() ColumnBlockBuilder {
+	return ColumnBlockBuilder{}
+}
+
+func (cb ColumnBlockBuilder) AppendValue(index int, value float64) error {
+	if len(cb.block.columns) <= index {
+		return fmt.Errorf("index out of range for append: %d", index)
+	}
+
+	cb.block.columns[index].Values = append(cb.block.columns[index].Values, value)
+	return nil
+}
+
+// TODO: Return an immutable copy
+func (cb ColumnBlockBuilder) Build() Block {
+	return cb.block
+}
+
+type Column struct {
+	Values []float64
 }

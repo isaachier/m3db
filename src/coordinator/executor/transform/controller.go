@@ -24,6 +24,7 @@ import (
 	"github.com/m3db/m3db/src/coordinator/errors"
 	"github.com/m3db/m3db/src/coordinator/parser"
 	"github.com/m3db/m3db/src/coordinator/storage"
+	"fmt"
 )
 
 // Controller controls the caching and forwarding the request to downstream.
@@ -57,6 +58,6 @@ func (t *Controller) BlockBuilder(blockMeta storage.BlockMetadata) (BlockBuilder
 
 // BlockBuilder builds a new block
 type BlockBuilder interface {
-	AppendValue(index int, value float64)
+	AppendValue(index int, value float64) error
 	Build() storage.Block
 }
