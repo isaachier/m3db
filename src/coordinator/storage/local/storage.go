@@ -32,6 +32,7 @@ import (
 	"github.com/m3db/m3db/src/dbnode/client"
 	"github.com/m3db/m3x/ident"
 	xtime "github.com/m3db/m3x/time"
+	"github.com/m3db/m3db/src/coordinator/block"
 )
 
 const (
@@ -164,13 +165,18 @@ func (s *localStorage) Type() storage.Type {
 }
 
 func (s *localStorage) FetchBlocks(
-	ctx context.Context, query *storage.FetchQuery, options *storage.FetchOptions) (storage.BlockResult, error) {
+	ctx context.Context, query *storage.FetchQuery, options *storage.FetchOptions) (block.Result, error) {
 	fetchResult, err := s.Fetch(ctx, query, options)
 	if err != nil {
-		return storage.BlockResult{}, err
+		return block.Result{}, err
 	}
 
-	return storage.BlockResult{}, nil
+	res, err := storage.FetchResultToBlockResult(fetchResult, query)
+	if err != nil {
+		return block.Result{}, err
+	}
+
+	return res, nil
 }
 
 func (w *writeRequest) Process(ctx context.Context) error {

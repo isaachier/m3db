@@ -11,10 +11,10 @@ type ColumnBlockBuilder struct {
 
 type columnBlock struct {
 	columns [] column
-	meta    BlockMetadata
+	meta    Metadata
 }
 
-func (c *columnBlock) Meta() BlockMetadata {
+func (c *columnBlock) Meta() Metadata {
 	return c.meta
 }
 
@@ -37,7 +37,7 @@ func (c *columnBlock) SeriesMeta() []SeriesMeta {
 
 type colBlockIter struct {
 	columns []column
-	meta    BlockMetadata
+	meta    Metadata
 	index   int
 }
 
@@ -90,7 +90,7 @@ func (c colStep) Values() []float64 {
 	return c.values
 }
 
-func NewColumnBlockBuilder(meta BlockMetadata) ColumnBlockBuilder {
+func NewColumnBlockBuilder(meta Metadata) ColumnBlockBuilder {
 	return ColumnBlockBuilder{
 		block: &columnBlock{
 			meta: meta,

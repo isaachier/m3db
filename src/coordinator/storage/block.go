@@ -19,7 +19,7 @@ func FetchResultToBlockResult(result *FetchResult, query *FetchQuery) (block.Res
 
 type multiSeriesBlock struct {
 	seriesList ts.SeriesList
-	meta       block.BlockMetadata
+	meta       block.Metadata
 }
 
 func newMultiSeriesBlock(seriesList ts.SeriesList, query *FetchQuery) (multiSeriesBlock, error) {
@@ -28,7 +28,7 @@ func newMultiSeriesBlock(seriesList ts.SeriesList, query *FetchQuery) (multiSeri
 		return multiSeriesBlock{}, err
 	}
 
-	meta := block.BlockMetadata{
+	meta := block.Metadata{
 		Bounds: block.Bounds{
 			Start:    query.Start,
 			End:      query.End,
@@ -38,7 +38,7 @@ func newMultiSeriesBlock(seriesList ts.SeriesList, query *FetchQuery) (multiSeri
 	return multiSeriesBlock{seriesList: seriesList, meta: meta}, nil
 }
 
-func (m multiSeriesBlock) Meta() block.BlockMetadata {
+func (m multiSeriesBlock) Meta() block.Metadata {
 	return m.meta
 }
 
@@ -51,7 +51,12 @@ func (m multiSeriesBlock) SeriesIter() block.SeriesIter {
 }
 
 func (m multiSeriesBlock) SeriesMeta() []block.SeriesMeta {
-	return nil
+	metas := make([]block.SeriesMeta, len(m.seriesList))
+	for i, s := range m.seriesList {
+		metas[i].Tags = s.Tags
+	}
+
+	return metas
 }
 
 type multiSeriesBlockStepIter struct {

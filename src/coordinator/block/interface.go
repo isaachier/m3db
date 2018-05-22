@@ -13,7 +13,7 @@ const (
 
 // Block represents a group of series across a time bound
 type Block interface {
-	Meta() BlockMetadata
+	Meta() Metadata
 	StepIter() StepIter
 	SeriesIter() SeriesIter
 	SeriesMeta() []SeriesMeta
@@ -51,8 +51,8 @@ type Step interface {
 	Values() []float64
 }
 
-// BlockMetadata is metadata for a block
-type BlockMetadata struct {
+// Metadata is metadata for a block
+type Metadata struct {
 	Bounds Bounds
 	Tags   models.Tags // Common tags across different series
 }
