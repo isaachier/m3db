@@ -28,6 +28,7 @@ import (
 	"github.com/m3db/m3db/src/coordinator/models"
 	"github.com/m3db/m3db/src/coordinator/ts"
 	xtime "github.com/m3db/m3x/time"
+	"github.com/m3db/m3db/src/coordinator/block"
 )
 
 // Type describes the type of storage
@@ -88,7 +89,7 @@ type Querier interface {
 	FetchTags(
 		ctx context.Context, query *FetchQuery, options *FetchOptions) (*SearchResults, error)
 	FetchBlocks(
-		ctx context.Context, query *FetchQuery, options *FetchOptions) (BlockResult, error)
+		ctx context.Context, query *FetchQuery, options *FetchOptions) (block.Result, error)
 }
 
 // WriteQuery represents the input timeseries that is written to M3DB
@@ -117,7 +118,7 @@ type SearchResults struct {
 
 // FetchResult provides a fetch result and meta information
 type FetchResult struct {
-	SeriesList []*ts.Series // The aggregated list of results across all underlying storage calls
+	SeriesList ts.SeriesList // The aggregated list of results across all underlying storage calls
 	LocalOnly  bool
 	HasNext    bool
 }
@@ -126,9 +127,4 @@ type FetchResult struct {
 type QueryResult struct {
 	FetchResult *FetchResult
 	Err         error
-}
-
-// BlockResult is the result from a block query
-type BlockResult struct {
-	Blocks []Block
 }

@@ -52,12 +52,6 @@ func (t *Controller) Process(block storage.Block) error {
 
 // BlockBuilder returns a BlockBuilder instance with associated metadata
 // nolint: unparam
-func (t *Controller) BlockBuilder(blockMeta storage.BlockMetadata) (BlockBuilder, error) {
-	return nil, errors.ErrNotImplemented
-}
-
-// BlockBuilder builds a new block
-type BlockBuilder interface {
-	AppendValue(index int, value float64) error
-	Build() storage.Block
+func (t *Controller) BlockBuilder(blockMeta storage.BlockMetadata) (storage.BlockBuilder, error) {
+	return storage.NewColumnBlockBuilder(blockMeta), nil
 }

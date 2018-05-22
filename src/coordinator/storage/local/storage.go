@@ -165,7 +165,12 @@ func (s *localStorage) Type() storage.Type {
 
 func (s *localStorage) FetchBlocks(
 	ctx context.Context, query *storage.FetchQuery, options *storage.FetchOptions) (storage.BlockResult, error) {
-	return storage.BlockResult{}, errors.ErrNotImplemented
+	fetchResult, err := s.Fetch(ctx, query, options)
+	if err != nil {
+		return storage.BlockResult{}, err
+	}
+
+	return storage.BlockResult{}, nil
 }
 
 func (w *writeRequest) Process(ctx context.Context) error {

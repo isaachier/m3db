@@ -1,91 +1,121 @@
 package storage
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/m3db/m3db/src/coordinator/models"
 	"github.com/m3db/m3db/src/coordinator/ts"
+	"github.com/m3db/m3db/src/coordinator/block"
+	"time"
 )
 
-// Block represents a group of series across a time bound
-type Block interface {
-	Meta() BlockMetadata
-	StepIter() StepIter
-	SeriesIter() SeriesIter
-	SeriesMeta() []SeriesMeta
-	StepMeta() []StepMeta
-}
-
-// SeriesMeta is metadata data for the series
-type SeriesMeta struct {
-	Tags models.Tags
-}
-
-// StepMeta is metadata data for a single time step
-type StepMeta struct {
-}
-
-// Bounds are the time bounds
-// nolint: structcheck, megacheck, unused
-type Bounds struct {
-	start    time.Time
-	end      time.Time
-	stepSize time.Duration
-}
-
-// SeriesIter iterates through a CompressedSeriesIterator horizontally
-type SeriesIter interface {
-	Next() bool
-	Current() ts.Series
-}
-
-// StepIter iterates through a CompressedStepIterator vertically
-type StepIter interface {
-	Next() bool
-	Current() Step
-}
-
-// Step can optionally implement iterator interface
-type Step interface {
-	Time() time.Time
-	Values() []float64
-}
-
-// BlockMetadata is metadata for a block
-type BlockMetadata struct {
-	Bounds Bounds
-	Tags   models.Tags // Common tags across different series
-}
-
-type ColumnBlockBuilder struct {
-	block ColumnBlock
-}
-
-type ColumnBlock struct {
-	columns [] Column
-}
-
-func (c ColumnBlock)
-
-func NewColumnBlockBuilder() ColumnBlockBuilder {
-	return ColumnBlockBuilder{}
-}
-
-func (cb ColumnBlockBuilder) AppendValue(index int, value float64) error {
-	if len(cb.block.columns) <= index {
-		return fmt.Errorf("index out of range for append: %d", index)
+func FetchResultToBlockResult(result *FetchResult, query *FetchQuery) (block.Result, error) {
+	multiBlock, err := newMultiSeriesBlock(result.SeriesList, query)
+	if err != nil {
+		return block.Result{}, err
 	}
 
-	cb.block.columns[index].Values = append(cb.block.columns[index].Values, value)
+	return block.Result{
+		Blocks: []block.Block{multiBlock},
+	}, nil
+}
+
+type multiSeriesBlock struct {
+	seriesList ts.SeriesList
+	meta       block.BlockMetadata
+}
+
+func newMultiSeriesBlock(seriesList ts.SeriesList, query *FetchQuery) (multiSeriesBlock, error) {
+	resolution, err := seriesList.Resolution()
+	if err != nil {
+		return multiSeriesBlock{}, err
+	}
+
+	meta := block.BlockMetadata{
+		Bounds: block.Bounds{
+			Start:    query.Start,
+			End:      query.End,
+			StepSize: resolution,
+		},
+	}
+	return multiSeriesBlock{seriesList: seriesList, meta: meta}, nil
+}
+
+func (m multiSeriesBlock) Meta() block.BlockMetadata {
+	return m.meta
+}
+
+func (m multiSeriesBlock) StepIter() block.StepIter {
+	return &multiSeriesBlockStepIter{block: m}
+}
+
+func (m multiSeriesBlock) SeriesIter() block.SeriesIter {
+	return &multiSeriesBlockSeriesIter{block: m}
+}
+
+func (m multiSeriesBlock) SeriesMeta() []block.SeriesMeta {
 	return nil
 }
 
-// TODO: Return an immutable copy
-func (cb ColumnBlockBuilder) Build() Block {
-	return cb.block
+type multiSeriesBlockStepIter struct {
+	block multiSeriesBlock
+	index int
 }
 
-type Column struct {
-	Values []float64
+func (m *multiSeriesBlockStepIter) Next() bool {
+	if len(m.block.seriesList) == 0 {
+		return false
+	}
+
+	return m.index < m.block.seriesList[0].Values().Len()
+}
+
+func (m *multiSeriesBlockStepIter) Current() block.Step {
+	t := m.block.meta.Bounds.Start.Add(time.Duration(m.index) * m.block.meta.Bounds.StepSize)
+	values := make([]float64, len(m.block.seriesList))
+	for i, s := range m.block.seriesList {
+		values[i] = s.Values().ValueAt(i)
+	}
+
+	m.index++
+	return colStep{
+		t:      t,
+		values: values,
+	}
+}
+
+func (m *multiSeriesBlockStepIter) Len() int {
+	if len(m.block.seriesList) == 0 {
+		return 0
+	}
+
+	return m.block.seriesList[0].Values().Len()
+}
+
+type colStep struct {
+	t      time.Time
+	values []float64
+}
+
+func (c colStep) Time() time.Time {
+	return c.t
+}
+
+func (c colStep) Values() []float64 {
+	return c.values
+}
+
+type multiSeriesBlockSeriesIter struct {
+	block multiSeriesBlock
+	index int
+}
+
+func (m *multiSeriesBlockSeriesIter) Next() bool {
+	return m.index < len(m.block.seriesList)
+}
+
+func (m *multiSeriesBlockSeriesIter) Current() block.Series {
+	s := m.block.seriesList[m.index]
+	values := make([]float64, s.Len())
+	for i := 0; i < s.Len(); i++ {
+		values[i] = s.Values().ValueAt(i)
+	}
+	return block.NewSeries(values, m.block.meta.Bounds)
 }

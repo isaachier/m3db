@@ -21,6 +21,10 @@
 package ts
 
 import (
+	"time"
+	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/m3db/m3db/src/coordinator/models"
 )
 
@@ -49,3 +53,25 @@ func (b *Series) Len() int { return b.vals.Len() }
 
 // Values returns the underlying values interface
 func (b *Series) Values() Values { return b.vals }
+
+type SeriesList []*Series
+
+func (seriesList SeriesList) Resolution() (time.Duration, error) {
+	var resolution time.Duration
+	for i, s := range seriesList {
+		fixedRes, ok := s.Values().(FixedResolutionMutableValues)
+		if !ok {
+			return 0, errors.New("only fixed resolution supported")
+		}
+
+		if i == 0 {
+			resolution = fixedRes.Resolution()
+		} else {
+			if resolution != fixedRes.Resolution() {
+				return 0, fmt.Errorf("resolution mismatch, r1: %v, r2: %v", resolution, fixedRes.Resolution())
+			}
+		}
+	}
+
+	return resolution, nil
+}
