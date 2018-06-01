@@ -25,7 +25,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/m3db/m3db/src/coordinator/block"
 	"github.com/m3db/m3db/src/coordinator/errors"
 )
 
