@@ -7,7 +7,12 @@ import (
 )
 
 func FetchResultToBlockResult(result *FetchResult, query *FetchQuery) (block.Result, error) {
-	multiBlock, err := newMultiSeriesBlock(result.SeriesList, query)
+	alignedSeriesList, err := result.SeriesList.Align(query.Start, query.End, query.Interval)
+	if err != nil {
+		return block.Result{}, err
+	}
+
+	multiBlock, err := newMultiSeriesBlock(alignedSeriesList, query)
 	if err != nil {
 		return block.Result{}, err
 	}

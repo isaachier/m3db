@@ -69,6 +69,7 @@ type FetchQuery struct {
 	TagMatchers models.Matchers `json:"matchers"`
 	Start       time.Time       `json:"start"`
 	End         time.Time       `json:"end"`
+	Interval    time.Duration   `json:"interval"`
 }
 
 func (q *FetchQuery) String() string {
