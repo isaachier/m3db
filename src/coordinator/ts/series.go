@@ -21,8 +21,8 @@
 package ts
 
 import (
-	"time"
 	"fmt"
+	"time"
 
 	"github.com/m3db/m3db/src/coordinator/models"
 
@@ -77,8 +77,10 @@ func alignValues(values Values, start time.Time, end time.Time, interval time.Du
 	}
 }
 
+// SeriesList represents a slice of series pointers
 type SeriesList []*Series
 
+// Resolution returns the resolution for a fixed step series list. It assumes all underlying series will have the same resolution
 func (seriesList SeriesList) Resolution() (time.Duration, error) {
 	var resolution time.Duration
 	for i, s := range seriesList {
@@ -99,6 +101,7 @@ func (seriesList SeriesList) Resolution() (time.Duration, error) {
 	return resolution, nil
 }
 
+// Align aligns each series to the given start, end and step.
 func (seriesList SeriesList) Align(start time.Time, end time.Time, interval time.Duration) (SeriesList, error) {
 	alignedList := make(SeriesList, len(seriesList))
 	for i, s := range seriesList {

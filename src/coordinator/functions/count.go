@@ -23,9 +23,9 @@ package functions
 import (
 	"fmt"
 
+	"github.com/m3db/m3db/src/coordinator/block"
 	"github.com/m3db/m3db/src/coordinator/executor/transform"
 	"github.com/m3db/m3db/src/coordinator/parser"
-	"github.com/m3db/m3db/src/coordinator/storage"
 )
 
 // CountType counts number of elements in the vector
@@ -57,7 +57,7 @@ type CountNode struct {
 }
 
 // Process the block
-func (c *CountNode) Process(ID parser.NodeID, block storage.Block) error {
+func (c *CountNode) Process(ID parser.NodeID, block block.Block) error {
 	builder, err := c.controller.BlockBuilder(block.Meta())
 	if err != nil {
 		return err

@@ -1,10 +1,11 @@
 package block
 
 import (
-	"time"
 	"fmt"
+	"time"
 )
 
+// ColumnBlockBuilder builds a block optimized for column iteration
 type ColumnBlockBuilder struct {
 	block *columnBlock
 }
@@ -14,10 +15,12 @@ type columnBlock struct {
 	meta    Metadata
 }
 
+// Meta returns the metadata for the block
 func (c *columnBlock) Meta() Metadata {
 	return c.meta
 }
 
+// StepIter returns a StepIterator
 func (c *columnBlock) StepIter() StepIter {
 	return &colBlockIter{
 		columns: c.columns,
@@ -26,11 +29,13 @@ func (c *columnBlock) StepIter() StepIter {
 }
 
 // TODO: allow series iteration
+// SeriesIter returns a SeriesIterator
 func (c *columnBlock) SeriesIter() SeriesIter {
 	return nil
 }
 
 // TODO: allow series iteration
+// SeriesMeta returns the metadata for each series in the block
 func (c *columnBlock) SeriesMeta() []SeriesMeta {
 	return nil
 }
@@ -41,10 +46,12 @@ type colBlockIter struct {
 	index   int
 }
 
+// Next returns true if iterator has more values remaining
 func (c *colBlockIter) Next() bool {
 	return c.index < len(c.columns)
 }
 
+// Current returns the current step
 func (c *colBlockIter) Current() Step {
 	if !c.Next() {
 		panic("current called without next")
@@ -63,6 +70,7 @@ func (c *colBlockIter) Current() Step {
 	}
 }
 
+// Len returns the total length ignoring current iterator position
 func (c *colBlockIter) Len() int {
 	return len(c.columns)
 }
@@ -82,14 +90,17 @@ type colStep struct {
 	values []float64
 }
 
+// Time for the step
 func (c colStep) Time() time.Time {
 	return c.time
 }
 
+// Values for the column
 func (c colStep) Values() []float64 {
 	return c.values
 }
 
+// NewColumnBlockBuilder creates a new column block builder
 func NewColumnBlockBuilder(meta Metadata) ColumnBlockBuilder {
 	return ColumnBlockBuilder{
 		block: &columnBlock{
@@ -98,6 +109,7 @@ func NewColumnBlockBuilder(meta Metadata) ColumnBlockBuilder {
 	}
 }
 
+// AppendValue adds a value to a column at index
 func (cb ColumnBlockBuilder) AppendValue(index int, value float64) error {
 	if len(cb.block.columns) <= index {
 		return fmt.Errorf("index out of range for append: %d", index)
@@ -107,12 +119,14 @@ func (cb ColumnBlockBuilder) AppendValue(index int, value float64) error {
 	return nil
 }
 
+// AddCols adds new columns
 func (cb ColumnBlockBuilder) AddCols(num int) error {
 	newCols := make([]column, num)
 	cb.block.columns = append(cb.block.columns, newCols...)
 	return nil
 }
 
+// Build extracts the block
 // TODO: Return an immutable copy
 func (cb ColumnBlockBuilder) Build() Block {
 	return cb.block

@@ -24,6 +24,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/m3db/m3db/src/coordinator/block"
 	"github.com/m3db/m3db/src/coordinator/errors"
 	"github.com/m3db/m3db/src/coordinator/models"
 	"github.com/m3db/m3db/src/coordinator/storage"
@@ -32,7 +33,6 @@ import (
 	"github.com/m3db/m3db/src/dbnode/client"
 	"github.com/m3db/m3x/ident"
 	xtime "github.com/m3db/m3x/time"
-	"github.com/m3db/m3db/src/coordinator/block"
 )
 
 const (

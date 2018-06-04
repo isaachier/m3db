@@ -1,11 +1,13 @@
 package storage
 
 import (
-	"github.com/m3db/m3db/src/coordinator/ts"
-	"github.com/m3db/m3db/src/coordinator/block"
 	"time"
+
+	"github.com/m3db/m3db/src/coordinator/block"
+	"github.com/m3db/m3db/src/coordinator/ts"
 )
 
+// FetchResultToBlockResult converts a fetch result into coordinator blocks
 func FetchResultToBlockResult(result *FetchResult, query *FetchQuery) (block.Result, error) {
 	alignedSeriesList, err := result.SeriesList.Align(query.Start, query.End, query.Interval)
 	if err != nil {

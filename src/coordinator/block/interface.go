@@ -1,13 +1,14 @@
 package block
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/m3db/m3db/src/coordinator/models"
-	"fmt"
 )
 
 const (
+	// ErrBounds is returned when time requested is outside the block bounds
 	ErrBounds = "out of bounds, time: %v, bounds: %v"
 )
 
@@ -57,31 +58,35 @@ type Metadata struct {
 	Tags   models.Tags // Common tags across different series
 }
 
-// BlockBuilder builds a new block
-type BlockBuilder interface {
+// Builder builds a new block
+type Builder interface {
 	AppendValue(index int, value float64) error
 	Build() Block
 	AddCols(num int) error
 }
 
-// BlockResult is the result from a block query
+// Result is the result from a block query
 type Result struct {
 	Blocks []Block
 }
 
+// Series is a single series within a block
 type Series struct {
 	values []float64
 	bounds Bounds
 }
 
+// NewSeries creates a new series
 func NewSeries(values []float64, bounds Bounds) Series {
 	return Series{values: values, bounds: bounds}
 }
 
+// ValueAtStep returns the datapoint value at a step index
 func (s Series) ValueAtStep(idx int) float64 {
 	return s.values[idx]
 }
 
+// ValueAtTime returns the datapoint value at a given time
 func (s Series) ValueAtTime(t time.Time) (float64, error) {
 	if t.Before(s.bounds.Start) || t.After(s.bounds.End) {
 		return 0, fmt.Errorf(ErrBounds, t, s.bounds)
@@ -93,8 +98,4 @@ func (s Series) ValueAtTime(t time.Time) (float64, error) {
 	}
 
 	return s.ValueAtStep(step), nil
-}
-
-func (s Series) Values() []float64 {
-	return s.values
 }

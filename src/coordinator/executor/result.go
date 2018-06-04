@@ -21,8 +21,8 @@
 package executor
 
 import (
+	"github.com/m3db/m3db/src/coordinator/block"
 	"github.com/m3db/m3db/src/coordinator/parser"
-	"github.com/m3db/m3db/src/coordinator/storage"
 )
 
 // Result provides the execution results
@@ -34,6 +34,6 @@ type ResultNode struct {
 }
 
 // Process the block
-func (r ResultNode) Process(ID parser.NodeID, block storage.Block) error {
+func (r ResultNode) Process(ID parser.NodeID, block block.Block) error {
 	return nil
 }

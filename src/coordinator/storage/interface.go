@@ -25,10 +25,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/m3db/m3db/src/coordinator/block"
 	"github.com/m3db/m3db/src/coordinator/models"
 	"github.com/m3db/m3db/src/coordinator/ts"
 	xtime "github.com/m3db/m3x/time"
-	"github.com/m3db/m3db/src/coordinator/block"
 )
 
 // Type describes the type of storage

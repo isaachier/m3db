@@ -3,8 +3,8 @@ package transform
 import (
 	"time"
 
+	"github.com/m3db/m3db/src/coordinator/block"
 	"github.com/m3db/m3db/src/coordinator/parser"
-	"github.com/m3db/m3db/src/coordinator/storage"
 )
 
 // Options to create transform nodes
@@ -14,5 +14,5 @@ type Options struct {
 
 // OpNode represents the execution node
 type OpNode interface {
-	Process(ID parser.NodeID, block storage.Block) error
+	Process(ID parser.NodeID, block block.Block) error
 }

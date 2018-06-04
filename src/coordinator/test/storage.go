@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/m3db/m3db/src/coordinator/block"
 	"github.com/m3db/m3db/src/coordinator/storage"
 	"github.com/m3db/m3db/src/dbnode/encoding"
 	m3ts "github.com/m3db/m3db/src/dbnode/ts"
@@ -48,7 +49,7 @@ func (s *slowStorage) Close() error {
 }
 
 func (s *slowStorage) FetchBlocks(
-	ctx context.Context, query *storage.FetchQuery, options *storage.FetchOptions) (storage.BlockResult, error) {
+	ctx context.Context, query *storage.FetchQuery, options *storage.FetchOptions) (block.Result, error) {
 	time.Sleep(s.delay)
 	return s.storage.FetchBlocks(ctx, query, options)
 }
