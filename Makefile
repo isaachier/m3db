@@ -167,7 +167,6 @@ release-snapshot: install-goreleaser
 	@echo Creating snapshot release
 	@source $(GO_BUILD_LDFLAGS_CMD) > /dev/null && goreleaser --snapshot --rm-dist
 
-
 .PHONY: docs-container
 docs-container:
 	which docker
@@ -189,6 +188,11 @@ docs-deploy: docs-container
 docker-integration-test: 
 	@echo "Running Docker integration test"
 	@./scripts/integration-tests/docker-integration-test.sh
+
+.PHONY: site-build
+site-build: 
+	@echo "Building site"
+	@./scripts/site-build.sh
 
 define SUBDIR_RULES
 

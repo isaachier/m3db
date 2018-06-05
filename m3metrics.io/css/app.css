@@ -1,0 +1,41 @@
+body {
+  background-color: #252540;
+  background-image: url("../img/tri_bg.png");
+  background-size: cover;
+
+  color: #f2f2f2;
+  font-family: Montserrat, sans-serif;
+  font-weight: 300;
+}
+
+h1 {
+  font-family: Oswald, sans-serif;
+  font-weight: 700;
+  font-size: 6em;
+}
+
+.top-bar, .top-bar ul {
+  background-color: transparent;
+}
+
+.menu a {
+  padding: 0.7rem 1rem 0.7rem 0;
+}
+
+header {
+  padding: 1.6rem 10%;
+}
+
+header ul {
+  margin-left: 0;
+  list-style: none;
+}
+
+header li {
+  font-weight: 400;
+  font-size: 1.6em;
+}
+
+header li:before {
+  content: "\279e  ";
+}

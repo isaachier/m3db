@@ -37,3 +37,7 @@ dist/
 # Docs directory
 site/
 
+# Used to serve m3metrics.io site
+!m3metrics.io/**/*.html
+# Automatically populated from asset sources
+m3metrics.io/openapi
